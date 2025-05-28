@@ -7,15 +7,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import csv
-#import os
-import matplotlib.pyplot as plt
-
-import rtmidi
-#import time
-#import threading
-#from rtmidi.midiconstants import (TIMING_CLOCK, SONG_CONTINUE, SONG_START, SONG_STOP)
-
-
 
 
             
@@ -153,8 +144,6 @@ def train_rnn(model, epochs):
 
         if (epoch + 1) % 10 == 0:
             print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
-    plt.plot(losses)
-    plt.show()
 
 
 X, y = load_training_data()
@@ -220,8 +209,7 @@ def train_autoencoder(model, dataloader, num_epochs=50, learning_rate=0.001):
         if epoch % 1 == 0:
             
             print(f"Epoch [{epoch}/{num_epochs}] Loss: {total_loss / len(dataloader)}")
-    plt.plot(losses)
-    plt.show()
+
 
 AE = Autoencoder()
 AE2 = Autoencoder()
@@ -251,9 +239,6 @@ def Generate_rhythm(model, tolerance=0.5, transit = 0.35):
             output2.append(1)
         else: output2.append(0)
         
-    # print('AE: Raw Generation: ',generated_rhythm[0])
-    print('Step on/off: ',output1)
-    print('Transitions: ',output2)
     return output1, output2
 
 print("training RNN")
@@ -271,20 +256,21 @@ print("AE ready")
 from sequencer import Sequencer
 
 # # Prepare the generated data
-pitches = generate_note_sequence(rnn, [62], 16, 0.5)[:16]
-pitches = [max(48, min(p, 90)) for p in pitches]
-rhythm, _ = Generate_rhythm(AE, 0.5)
-rhythm = rhythm[:16]
-print(rhythm, pitches)
+p1 = generate_note_sequence(rnn, [62], 16, 0.5)[:16]
+p1 = [max(48, min(p, 90)) for p in p1]
+r1, _ = Generate_rhythm(AE, 0.5)
+r1 = r1[:16]
+print(r1, p1)
 
-pitches2 = generate_note_sequence(rnn2, [62], 16, 0.5)[:16]
-pitches2 = [max(48, min(p, 90)) for p in pitches]
-rhythm2, _ = Generate_rhythm(AE2, 0.5)
-rhythm2 = rhythm[:16]
-print(rhythm, pitches)
+p2 = generate_note_sequence(rnn2, [62], 16, 0.5)[:16]
+p2 = [max(48, min(p, 90)) for p in p2]
+r2, _ = Generate_rhythm(AE2, 0.5)
+r2 = r2[:16]
+print(r2, p2)
 
 # Start the sequencer
-seq = Sequencer(pitches, rhythm, duration=5, clock_in=1, port_out=1, channel=1)
-seq2 = Sequencer(pitches, rhythm, duration=5, clock_in=1, port_out=1, channel=2)
+seq = Sequencer(p1, r1, channel1=1, 
+                pitches2=p2, rhythm2=r2, channel2=2, 
+                duration=5, clock_in=1, port_out=1)
+
 seq.start()
-seq2.start()
