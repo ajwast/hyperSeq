@@ -44,8 +44,6 @@ class Sequencer:
         print("MIDI ports opened successfully.")
 
     def start(self):
-        print("Sequencer started.")
-        while True:
             msg = self.midiin.get_message()
             if msg:
                 data = msg[0]
