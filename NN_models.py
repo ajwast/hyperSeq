@@ -272,5 +272,5 @@ print(r2, p2)
 seq = Sequencer(p1, r1, channel1=1, 
                 pitches2=p2, rhythm2=r2, channel2=2, 
                 duration=5, clock_in=1, port_out=3)
-
-seq.start()
+while True:
+    seq.start()
