@@ -255,7 +255,7 @@ print("AE ready")
 
 from sequencer import Sequencer
 
-# # Prepare the generated data
+# Prepare the generated data
 p1 = generate_note_sequence(rnn, [62], 16, 0.5)[:16]
 p1 = [max(48, min(p, 90)) for p in p1]
 r1, _ = Generate_rhythm(AE, 0.5)
@@ -269,8 +269,17 @@ r2 = r2[:16]
 print(r2, p2)
 
 # Start the sequencer
-seq = Sequencer(p1, r1, channel1=1, 
-                pitches2=p2, rhythm2=r2, channel2=2, 
-                duration=5, clock_in=1, port_out=3)
+seq = Sequencer(
+    pitches1=p1,
+    rhythm1=r1,
+    channel1=1,
+    pitches2=p2,
+    rhythm2=r2,
+    channel2=2,
+    duration=5,
+    clock_in=1,
+    port_out=3
+)
+
 while True:
     seq.start()
