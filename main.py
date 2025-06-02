@@ -6,6 +6,10 @@ import torch
 import numpy as np
 import csv
 from sequencer import Sequencer
+import sys
+import select
+
+print("Initialising...")
 
 # === Data Loading Functions ===
 def load_training_data(x_filename='X_data.csv', y_filename='y_data.csv', seq_len=16):
@@ -37,19 +41,6 @@ Trainer.train_autoencoder(ae_gen1, ae_loader, epochs=50)
 Trainer.train_rnn(rnn_gen2, X, y, epochs=60)
 Trainer.train_autoencoder(ae_gen2, ae_loader, epochs=50)
 
-
-#rnn.save("note_rnn.pth")
-#ae.save("rhythm_ae.pth")
-
-# === Generate example sequence ===
-#pitches = rnn.generate([62], 16, temperature=0.5)[:16]
-#pitches = [max(50, min(p, 80)) for p in pitches]
-#rhythm, _ = ae.generate()
-
-#print("Generated Pitches:", pitches)
-#print("Generated Rhythm:", rhythm)
-
-
 # Generate initial sequences
 p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
 p1 = [max(50, min(p, 80)) for p in p1]
@@ -74,3 +65,20 @@ seq = Sequencer(
 
 while True:
 	seq.start()
+	if select.select([sys.stdin], [], [], 0)[0]:
+		user_input = sys.stdin.readline().strip()
+		if user_input == '1':
+			p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
+			p1 = [max(50, min(p, 80)) for p in p1]
+			seq.pitches1 = p1
+		if user_input == '2':
+			r1, _ = ae_gen1.generate()
+			seq.rhythm1 = r1
+		if user_input == '3':
+			p2 = rnn_gen2.generate([62], 16, temperature=0.5)[:16]
+			p2 = [max(50, min(p, 80)) for p in p2]
+			seq.pitches2 = p2
+		if user_input == '4':
+			r2, _ = ae_gen2.generate()
+			seq.rhythm2 = r2
+
