@@ -241,15 +241,15 @@ def Generate_rhythm(model, tolerance=0.5, transit = 0.35):
         
     return output1, output2
 
-print("training RNN")
-train_rnn(rnn, 60)
-train_rnn(rnn2, 60)
-print("RNN ready")
-
-print("training AE")
-train_autoencoder(AE,dataloader,50)
-train_autoencoder(AE2,dataloader,50)
-print("AE ready")
+# print("training RNN")
+# train_rnn(rnn, 60)
+# train_rnn(rnn2, 60)
+# print("RNN ready")
+# 
+# print("training AE")
+# train_autoencoder(AE,dataloader,50)
+# train_autoencoder(AE2,dataloader,50)
+# print("AE ready")
 
 
 

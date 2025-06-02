@@ -44,27 +44,25 @@ class Sequencer:
         print("MIDI ports opened successfully.")
 
     def start(self):
-        print("Sequencer started.")
-        while True:
-            msg = self.midiin.get_message()
-            if msg:
-                data = msg[0]
-                if data == [250]:  # Start
-                    print('MIDI Start received.')
-                    self.reset()
-                elif data == [252]:  # Stop
-                    print('MIDI Stop received.')
-                    self.stop_note(1)
-                    self.stop_note(2)
-                    self.playstate = False
-                elif data == [TIMING_CLOCK] and self.playstate:
-                    self.current_tick += 1
-                    self.ticks = (self.ticks + 1) % 6
-                    if self.ticks == 0:
-                        self.process_step(1)
-                        self.process_step(2)
-                    self.check_note_off(1)
-                    self.check_note_off(2)
+        msg = self.midiin.get_message()
+        if msg:
+            data = msg[0]
+            if data == [250]:  # Start
+                print('MIDI Start received.')
+                self.reset()
+            elif data == [252]:  # Stop
+                print('MIDI Stop received.')
+                self.stop_note(1)
+                self.stop_note(2)
+                self.playstate = False
+            elif data == [TIMING_CLOCK] and self.playstate:
+                self.current_tick += 1
+                self.ticks = (self.ticks + 1) % 6
+                if self.ticks == 0:
+                    self.process_step(1)
+                    self.process_step(2)
+                self.check_note_off(1)
+                self.check_note_off(2)
 
     def reset(self):
         self.ticks = 0
