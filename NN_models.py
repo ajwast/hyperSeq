@@ -277,8 +277,8 @@ seq = Sequencer(
     rhythm2=r2,
     channel2=2,
     duration=5,
-    clock_in=1,
-    port_out=3
+    clock_in=2,
+    port_out=2
 )
 
 while True:
