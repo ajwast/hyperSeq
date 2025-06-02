@@ -56,12 +56,21 @@ p1 = [max(50, min(p, 80)) for p in p1]
 
 p2 = rnn_gen2.generate(start_sequence=[65], length=16)
 p2 = [max(50, min(p, 80)) for p in p2]
-r1 = ae_gen1.generate()
-r2 = ae_gen2.generate()
-
+r1, _ = ae_gen1.generate()
+r2, _ = ae_gen2.generate()
+print (p1, r1, p2, r2)
 # Launch sequencer
-seq = Sequencer(p1, r1, channel1=1, 
-                pitches2=p2, rhythm2=r2, channel2=2, 
-                duration=5, clock_in=1, port_out=3)
+seq = Sequencer(
+    pitches1=p1,
+    rhythm1=r1,
+    channel1=1,
+    pitches2=p2,
+    rhythm2=r2,
+    channel2=2,
+    duration=5,
+    clock_in=2,
+    port_out=2
+)
 
-seq.start()
+while True:
+	seq.start()
