@@ -25,6 +25,7 @@ class Sequencer:
 
         # Sequence state
         self.step_index = 0
+        self.note_i = 0
         self.note_playing = False
         self.current_note = 0
         self.gate_off_tick = 0
@@ -53,6 +54,7 @@ class Sequencer:
         self.ticks = 0
         self.current_tick = 0
         self.step_index = 0
+        self.note_i = 0
         self.note_playing = False
         self.stop_note()
         self.playstate = True
@@ -64,13 +66,16 @@ class Sequencer:
 
     def process_step(self):
         step = self.rhythm[self.step_index]
+        if step == 0:
+            self.note_i = 0
         if step == 1:
             self.stop_note()
-            self.current_note = self.pitches[self.step_index]
+            self.current_note = self.pitches[self.note_i]]
             print("Note on:", self.current_note)
             self.midi_out.send_message([0x90 | self.channel, self.current_note, 100])
             self.note_playing = True
             self.gate_off_tick = self.current_tick + self.duration
+            self.note_i = self.note_i + 1
         self.step_index = (self.step_index + 1) % len(self.rhythm)
 
     def check_note_off(self):

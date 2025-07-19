@@ -51,20 +51,27 @@ r1, _ = ae_gen1.generate()
 r2, _ = ae_gen2.generate()
 print (p1, r1, p2, r2)
 # Launch sequencer
-seq = Sequencer(
-    pitches1=p1,
-    rhythm1=r1,
-    channel1=1,
-    pitches2=p2,
-    rhythm2=r2,
-    channel2=2,
+seq1 = Sequencer(
+    pitches=p1,
+    rhythm=r1,
+    channel=1,
     duration=5,
     clock_in=2,
     port_out=2
-)
+    )
+
+seq2 = Sequencer(
+        pitches=p2,
+        rhythm=r2,
+        channel=2,
+        duration=5,
+        clock_in=2,
+        port_out=3
+        )
 
 while True:
-	seq.start()
+	seq1.start()
+    seq2.start()
 	if select.select([sys.stdin], [], [], 0)[0]:
 		user_input = sys.stdin.readline().strip()
 		if user_input == '1':
