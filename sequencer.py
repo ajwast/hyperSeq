@@ -2,13 +2,14 @@ import rtmidi
 from rtmidi.midiconstants import TIMING_CLOCK
 
 class Sequencer:
-    def __init__(self, pitches, rhythm, channel, duration=5, clock_in=0, port_out=0):
+    def __init__(self, pitches, rhythm, channel, duration=5, p_start = 0,  seq_len = 16,  clock_in=0, port_out=0):
         # Sequence data
         self.pitches = pitches
         self.rhythm = rhythm
         self.channel = max(1, min(channel, 16)) - 1
-
+        self.seq_len = seq_len
         self.duration = duration
+        self.p_start = p_start
 
         # MIDI setup
         self.midiin = rtmidi.MidiIn()
@@ -25,7 +26,7 @@ class Sequencer:
 
         # Sequence state
         self.step_index = 0
-        self.note_i = 0
+        self.note_i = p_start
         self.note_playing = False
         self.current_note = 0
         self.gate_off_tick = 0
@@ -67,16 +68,16 @@ class Sequencer:
     def process_step(self):
         step = self.rhythm[self.step_index]
         if step == 0:
-            self.note_i = 0
+            self.note_i = self.p_start
         if step == 1:
             self.stop_note()
-            self.current_note = self.pitches[self.note_i]]
-            print("Note on:", self.current_note)
+            self.current_note = self.pitches[self.note_i]
+          #  print("Note on:", self.current_note)
             self.midi_out.send_message([0x90 | self.channel, self.current_note, 100])
             self.note_playing = True
             self.gate_off_tick = self.current_tick + self.duration
             self.note_i = self.note_i + 1
-        self.step_index = (self.step_index + 1) % len(self.rhythm)
+        self.step_index = (self.step_index + 1) % self.seq_len
 
     def check_note_off(self):
         if self.note_playing and self.current_tick >= self.gate_off_tick:
