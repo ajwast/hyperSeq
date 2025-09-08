@@ -1,4 +1,4 @@
-from note_rnn import NoteRNN
+from note_rnn import NoteRNN, PitchVelRNN
 from rhythm_autoencoder import RhythmAutoencoder
 from trainer import Trainer
 from torch.utils.data import TensorDataset, DataLoader
@@ -55,10 +55,12 @@ print ("Loading data...")
 X, y = load_training_data()
 ae_loader = load_ae_data()
 
+
 rnn_gen1 = NoteRNN()
+rnn_gen2 = PitchVelRNN()
 ae_gen1 = RhythmAutoencoder()
 print("Models defined. Beginning training")
-Trainer.train_rnn(rnn_gen1, X, y, epochs=60)
+Trainer.train_rnn(rnn_gen1, X, y, epochs=100)
 Trainer.train_autoencoder(ae_gen1, ae_loader, epochs=50)
 
 
