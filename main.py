@@ -8,6 +8,8 @@ import csv
 from sequencer import Sequencer
 import sys
 import select
+import rtmidi
+
 
 print("Initialising...")
 
@@ -27,25 +29,41 @@ def load_ae_data(dataset_file='dataset.csv'):
     d_data = torch.tensor(np.loadtxt(dataset_file, delimiter=','), dtype=torch.float32)
     return DataLoader(TensorDataset(d_data, d_data), batch_size=16, shuffle=True)
 
-# === Training / Loading ===
-X, y = load_training_data()
-ae_loader = load_ae_data()
+# # === Training / Loading ===
+# X, y = load_training_data()
+# ae_loader = load_ae_data()
 
-rnn_gen1 = NoteRNN()
-ae_gen1 = RhythmAutoencoder()
-Trainer.train_rnn(rnn_gen1, X, y, epochs=60)
-Trainer.train_autoencoder(ae_gen1, ae_loader, epochs=50)
+# rnn_gen1 = NoteRNN()
+# ae_gen1 = RhythmAutoencoder()
+# Trainer.train_rnn(rnn_gen1, X, y, epochs=60)
+# Trainer.train_autoencoder(ae_gen1, ae_loader, epochs=50)
 
 
-# Generate initial sequences
-p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
-p1 = [max(50, min(p, 80)) for p in p1]
+# # Generate initial sequences
+# p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
+# p1 = [max(50, min(p, 80)) for p in p1]
 
-p2 = rnn_gen1.generate(start_sequence=[65], length=16)
-p2 = [max(50, min(p, 80)) for p in p2]
-r1, _ = ae_gen1.generate()
-r2, _ = ae_gen1.generate()
-print (p1, r1, p2, r2)
+# p2 = rnn_gen1.generate(start_sequence=[65], length=16)
+# p2 = [max(50, min(p, 80)) for p in p2]
+# r1, _ = ae_gen1.generate()
+# r2, _ = ae_gen1.generate()
+# print (p1, r1, p2, r2)
+
+midiIn = rtmidi.MidiIn()
+inPorts = midiIn.get_ports()
+midiOut = rtmidi.MidiOut()
+outPorts = midiOut.get_ports()
+
+print("Available MIDI In ports:")
+print(inPorts)
+midiClock = input("Choose MIDI clock input")
+
+print("Available MIDI Out ports:")
+print(outPorts)
+
+outputPort1 = input("Choose MIDI out port 1")
+outputPort2 = input("Choose MIDI out port 2")
+
 # Launch sequencer
 seq1 = Sequencer(
     pitches=p1,
@@ -53,8 +71,8 @@ seq1 = Sequencer(
     channel=1,
     duration=5,
     seq_len = 4,
-    clock_in=1,
-    port_out=1
+    clock_in=midiClock,
+    port_out=outputPort1
     )
 
 seq2 = Sequencer(
@@ -62,8 +80,8 @@ seq2 = Sequencer(
         rhythm=r2,
         channel=2,
         duration=5,
-        clock_in=1,
-        port_out=1
+        clock_in=midiClock,
+        port_out=outputPort2
         )
 
 while True:
