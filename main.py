@@ -70,7 +70,7 @@ seq1 = Sequencer(
     rhythm=r1,
     channel=1,
     duration=5,
-    seq_len = 4,
+    seq_len = 16,
     clock_in=midiClock,
     port_out=outputPort1
     )
@@ -85,22 +85,24 @@ seq2 = Sequencer(
         )
 
 while True:
-	seq1.start()
-	seq2.start()
- #  if select.select([sys.stdin], [], [], 0)[0]:
-     #   user_input = sys.stdin.readline().strip()
-	#	if user_input == '1':
-	#		p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
-	#		p1 = [max(50, min(p, 80)) for p in p1]
-	#		seq.pitches1 = p1
-	#	if user_input == '2':
-	#		r1, _ = ae_gen1.generate()
-	#		seq.rhythm1 = r1
-	#	if user_input == '3':
-	#		p2 = rnn_gen2.generate([62], 16, temperature=0.5)[:16]
-	#		p2 = [max(50, min(p, 80)) for p in p2]
-	#		seq.pitches2 = p2
-	#	if user_input == '4':
-	#		r2, _ = ae_gen2.generate()
-	#		seq.rhythm2 = r2
+    seq1.start()
+    seq2.start()
+    if select.select([sys.stdin], [], [], 0)[0]:
+        user_input = sys.stdin.readline().strip()
+        if user_input == '1':
+            p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
+            p1 = [max(50, min(p, 80)) for p in p1]
+            seq1.pitches = p1
+        if user_input == '2':
+            r1, _ = ae_gen1.generate()
+            seq1.rhythm = r1
+        if user_input == '3':
+            p2 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
+            p2 = [max(50, min(p, 80)) for p in p2]
+            seq2.pitches = p2
+        if user_input == '4':
+            r2, _ = ae_gen1.generate()
+            seq2.rhythm = r2
+
+
 
