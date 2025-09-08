@@ -13,6 +13,27 @@ import rtmidi
 
 print("Initialising...")
 
+print("MIDI SETUP")
+
+midiIn = rtmidi.MidiIn()
+inPorts = midiIn.get_ports()
+midiOut = rtmidi.MidiOut()
+outPorts = midiOut.get_ports()
+
+print("Available MIDI In ports:")
+
+for i, port in enumerate(inPorts):
+    print(port, "=", i)
+
+midiClock = int(input("Choose MIDI clock input: "))
+
+print("Available MIDI Out ports:")
+for i, port in enumerate(outPorts):
+    print(port, "=", i)
+
+outputPort1 = int(input("Choose MIDI out port 1: "))
+outputPort2 = int(input("Choose MIDI out port 2: "))
+
 # === Data Loading Functions ===
 def load_training_data(x_filename='X_data.csv', y_filename='y_data.csv', seq_len=16):
     X, y = [], []
@@ -30,11 +51,13 @@ def load_ae_data(dataset_file='dataset.csv'):
     return DataLoader(TensorDataset(d_data, d_data), batch_size=16, shuffle=True)
 
 # # === Training / Loading ===
+print ("Loading data...")
 X, y = load_training_data()
 ae_loader = load_ae_data()
 
 rnn_gen1 = NoteRNN()
 ae_gen1 = RhythmAutoencoder()
+print("Models defined. Beginning training")
 Trainer.train_rnn(rnn_gen1, X, y, epochs=60)
 Trainer.train_autoencoder(ae_gen1, ae_loader, epochs=50)
 
@@ -49,20 +72,7 @@ r1, _ = ae_gen1.generate()
 r2, _ = ae_gen1.generate()
 print (p1, r1, p2, r2)
 
-midiIn = rtmidi.MidiIn()
-inPorts = midiIn.get_ports()
-midiOut = rtmidi.MidiOut()
-outPorts = midiOut.get_ports()
 
-print("Available MIDI In ports:")
-print(inPorts)
-midiClock = int(input("Choose MIDI clock input: "))
-
-print("Available MIDI Out ports:")
-print(outPorts)
-
-outputPort1 = int(input("Choose MIDI out port 1: "))
-outputPort2 = int(input("Choose MIDI out port 2: "))
 
 # Launch sequencer
 seq1 = Sequencer(
@@ -93,16 +103,20 @@ while True:
             p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
             p1 = [max(50, min(p, 80)) for p in p1]
             seq1.pitches = p1
+            print(p1)
         if user_input == '2':
             r1, _ = ae_gen1.generate()
             seq1.rhythm = r1
+            print(r1)
         if user_input == '3':
             p2 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
             p2 = [max(50, min(p, 80)) for p in p2]
             seq2.pitches = p2
+            print(p2)
         if user_input == '4':
             r2, _ = ae_gen1.generate()
             seq2.rhythm = r2
+            print(r2)
 
 
 
