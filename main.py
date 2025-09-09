@@ -103,38 +103,46 @@ root.title("Sequencer Visualiser")
 gui1 = SequencerGUI(root, r1, label="Seq 1")
 gui2 = SequencerGUI(root, r2, label="Seq 2")
 
+# === Button Callbacks ===
+def gen_pitches1():
+    global p1
+    p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
+    p1 = [max(50, min(p, 80)) for p in p1]
+    seq1.pitches = p1
+    print("Updated Seq1 Pitches:", p1)
+
+def gen_rhythm1():
+    global r1
+    r1, _ = ae_gen1.generate()
+    seq1.rhythm = r1
+    gui1.update(seq1.step_index, r1)
+    print("Updated Seq1 Rhythm:", r1)
+
+def gen_pitches2():
+    global p2
+    p2 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
+    p2 = [max(50, min(p, 80)) for p in p2]
+    seq2.pitches = p2
+    print("Updated Seq2 Pitches:", p2)
+
+def gen_rhythm2():
+    global r2
+    r2, _ = ae_gen1.generate()
+    seq2.rhythm = r2
+    gui2.update(seq2.step_index, r2)
+    print("Updated Seq2 Rhythm:", r2)
+
+# Hook GUI buttons
+gui1.pitch_btn.config(command=gen_pitches1)
+gui1.rhythm_btn.config(command=gen_rhythm1)
+gui2.pitch_btn.config(command=gen_pitches2)
+gui2.rhythm_btn.config(command=gen_rhythm2)
+
 def run_loop():
     seq1.start()
     seq2.start()
-
-    # Update GUIs with current step index
     gui1.update(seq1.step_index, seq1.rhythm)
     gui2.update(seq2.step_index, seq2.rhythm)
-
-    # still allow terminal user input (non-blocking)
-    if select.select([sys.stdin], [], [], 0)[0]:
-        user_input = sys.stdin.readline().strip()
-        if user_input == '1':
-            p1 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
-            p1 = [max(50, min(p, 80)) for p in p1]
-            seq1.pitches = p1
-            print("Updated Seq1 Pitches:", p1)
-        if user_input == '2':
-            r1, _ = ae_gen1.generate()
-            seq1.rhythm = r1
-            gui1.update(seq1.step_index, r1)
-            print("Updated Seq1 Rhythm:", r1)
-        if user_input == '3':
-            p2 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
-            p2 = [max(50, min(p, 80)) for p in p2]
-            seq2.pitches = p2
-            print("Updated Seq2 Pitches:", p2)
-        if user_input == '4':
-            r2, _ = ae_gen1.generate()
-            seq2.rhythm = r2
-            gui2.update(seq2.step_index, r2)
-            print("Updated Seq2 Rhythm:", r2)
-
     root.after(10, run_loop)
 
 run_loop()
