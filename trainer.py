@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
+from data_processing import collate_batch
+from note_rnn import PitchTransitionRNN
 
 class Trainer:
     @staticmethod
@@ -19,6 +22,7 @@ class Trainer:
             losses.append(loss.item())
             if epoch % 10 == 0:
                 print(f"[RNN] Epoch {epoch}, Loss: {loss.item():.4f}")
+
 
     @staticmethod
     def train_autoencoder(model, dataloader, epochs=50, lr=0.001):
@@ -40,3 +44,5 @@ class Trainer:
             losses.append(avg_loss)
             if epoch % 5 == 0:
                 print(f"[AE] Epoch {epoch}, Loss: {avg_loss:.4f}")
+
+
