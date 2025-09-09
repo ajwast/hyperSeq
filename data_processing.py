@@ -4,19 +4,6 @@ import numpy as np
 import os
 from torch.utils.data import Dataset, DataLoader
 
-os.chdir('../../../ML Corpus 2/')
-cd = os.getcwd()      
-
-
-filenames = []
-
-for (root,dirs,files) in os.walk(cd, topdown=True): 
-    for name in files:
-          if name.endswith('.'+'wav'):
-            filenames.append(os.path.join(root, name))
-
-print("Found", len(filenames), "files.")
-
 
 class AudioRNNDataset(Dataset):
     def __init__(self, filenames, tonic=60, num_degrees=7, num_octaves=5, 
@@ -123,12 +110,41 @@ class AudioRNNDataset(Dataset):
         return self.X[idx], self.Y[idx]
     
 
+def collate_batch(batch):
+        """
+        batch: list of (X, Y) pairs where
+            X["degrees"] = (T,), ...
+            Y["degrees"] = (T,), ...
+        """
+        X_batch, Y_batch = [], []
 
-dataset = AudioRNNDataset(filenames, seq_len=16)
-loader = DataLoader(dataset, batch_size=32, shuffle=True)
+        for X, Y in batch:
+            seq_len = X["degrees"].shape[0]
 
-for batch_X, batch_Y in loader:
-    print(batch_X["degrees"].shape)    # (B, seq_len)
-    print(batch_X["histograms"].shape) # (B, num_degrees)
-    print(batch_Y["degrees"].shape)    # (B, seq_len)
-    break
+            # Expand histogram (num_degrees,) -> (T, num_degrees)
+            hist_expanded = X["histograms"].unsqueeze(0).repeat(seq_len, 1)
+
+            X_batch.append({
+                "degrees": X["degrees"],
+                "octaves": X["octaves"],
+                "velocities": X["velocities"],
+                "histograms": hist_expanded
+            })
+            Y_batch.append(Y)
+
+        # Stack into tensors
+        X_out = {
+            "degrees": torch.stack([x["degrees"] for x in X_batch]),
+            "octaves": torch.stack([x["octaves"] for x in X_batch]),
+            "velocities": torch.stack([x["velocities"] for x in X_batch]),
+            "histograms": torch.stack([x["histograms"] for x in X_batch])
+        }
+        Y_out = {
+            "degrees": torch.stack([y["degrees"] for y in Y_batch]),
+            "octaves": torch.stack([y["octaves"] for y in Y_batch]),
+            "velocities": torch.stack([y["velocities"] for y in Y_batch])
+        }
+
+        return X_out, Y_out
+
+
