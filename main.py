@@ -1,4 +1,4 @@
-from note_rnn import NoteRNN, PitchVelRNN
+from note_rnn import NoteRNN
 from rhythm_autoencoder import RhythmAutoencoder
 from trainer import Trainer
 from torch.utils.data import TensorDataset, DataLoader
@@ -9,7 +9,7 @@ from sequencer import Sequencer
 import sys
 import select
 import rtmidi
-import tkinter
+import tkinter as tk
 from gui import SequencerGUI
 
 
@@ -59,7 +59,6 @@ ae_loader = load_ae_data()
 
 
 rnn_gen1 = NoteRNN()
-rnn_gen2 = PitchVelRNN()
 ae_gen1 = RhythmAutoencoder()
 print("Models defined. Beginning training")
 Trainer.train_rnn(rnn_gen1, X, y, epochs=100)
@@ -108,8 +107,9 @@ def run_loop():
     seq1.start()
     seq2.start()
 
-    gui1.update(seq1.sx_n, seq1.rhythm)
-    gui2.update(seq2.sx_n, seq2.rhythm)
+    # Update GUIs with current step index
+    gui1.update(seq1.step_index, seq1.rhythm)
+    gui2.update(seq2.step_index, seq2.rhythm)
 
     # still allow terminal user input (non-blocking)
     if select.select([sys.stdin], [], [], 0)[0]:
@@ -122,7 +122,7 @@ def run_loop():
         if user_input == '2':
             r1, _ = ae_gen1.generate()
             seq1.rhythm = r1
-            gui1.update(seq1.sx_n, r1)
+            gui1.update(seq1.step_index, r1)
             print("Updated Seq1 Rhythm:", r1)
         if user_input == '3':
             p2 = rnn_gen1.generate([62], 16, temperature=0.5)[:16]
@@ -132,7 +132,7 @@ def run_loop():
         if user_input == '4':
             r2, _ = ae_gen1.generate()
             seq2.rhythm = r2
-            gui2.update(seq2.sx_n, r2)
+            gui2.update(seq2.step_index, r2)
             print("Updated Seq2 Rhythm:", r2)
 
     root.after(10, run_loop)
