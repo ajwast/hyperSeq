@@ -25,9 +25,11 @@ Otherwise get them separately
 pip install python-rtmidi torch
 ```
 
-Start your environment and the program.  The models will train on some pre-processed data. A simple Tkinter GUI will give some visual feedback.
+Start your environment and the program.
 
 ``` bash
-source env/activate/bin
+source env/bin/activate
 python3 src/main.py
 ```
+
+You will be prompted to choose MIDI in and out ports from those available on your system. The models will then train on some pre-processed data. A simple Tkinter GUI will give some visual feedback. Send MIDI clock to the MIDI input to run the sequencer.
