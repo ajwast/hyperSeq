@@ -6,8 +6,6 @@ import torch
 import numpy as np
 import csv
 from sequencer import Sequencer
-import sys
-import select
 import rtmidi
 import tkinter as tk
 from gui import SequencerGUI
@@ -37,7 +35,7 @@ outputPort1 = int(input("Choose MIDI out port 1: "))
 outputPort2 = int(input("Choose MIDI out port 2: "))
 
 # === Data Loading Functions ===
-def load_training_data(x_filename='X_data.csv', y_filename='y_data.csv', seq_len=16):
+def load_training_data(x_filename='data/X_data.csv', y_filename='data/y_data.csv', seq_len=16):
     X, y = [], []
     with open(x_filename, mode='r') as f_x:
         for row in csv.reader(f_x):
@@ -48,7 +46,7 @@ def load_training_data(x_filename='X_data.csv', y_filename='y_data.csv', seq_len
             y.append(torch.tensor(list(map(int, row))))
     return torch.stack(X), torch.stack(y)
 
-def load_ae_data(dataset_file='dataset.csv'):
+def load_ae_data(dataset_file='data/dataset.csv'):
     d_data = torch.tensor(np.loadtxt(dataset_file, delimiter=','), dtype=torch.float32)
     return DataLoader(TensorDataset(d_data, d_data), batch_size=16, shuffle=True)
 
